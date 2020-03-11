@@ -57,7 +57,7 @@ class OnePlusLambdaLambdaGAHT(lambdaTuning: Long => LambdaTuning,
       val weights = new Array[Double](size)
       var weightsSum = 0.0
       for (i <- 1 to size) {
-        weightsSum = weightsSum + math.pow(2.5, -i)
+        weightsSum = weightsSum + math.pow(i, -2.5)
         weights(i - 1) = weightsSum
       }
       weights
