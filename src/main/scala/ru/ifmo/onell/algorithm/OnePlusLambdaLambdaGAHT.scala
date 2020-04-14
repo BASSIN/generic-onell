@@ -29,6 +29,18 @@ class OnePlusLambdaLambdaGAHT(lambdaTuning: Long => LambdaTuning,
     val mutation, mutationBest, crossover, crossoverBest = deltaOps.createStorage(nChanges)
     val aux = new Aux[F]
 
+    def calculateWeights(size: Int): Array[Double] = {
+      val weights = new Array[Double](size)
+      var weightsSum = 0.0
+      for (i <- 1 to size) {
+        weightsSum = weightsSum + math.pow(i, -2.5)
+        weights(i - 1) = weightsSum
+      }
+      weights
+    }
+
+    val weights = calculateWeights(problemSize)
+
     @tailrec
     def initMutation(expectedChange: Double): Int = {
       val change = deltaOps.initializeDeltaWithDefaultSize(mutation, nChanges, expectedChange, rng)
@@ -50,21 +62,15 @@ class OnePlusLambdaLambdaGAHT(lambdaTuning: Long => LambdaTuning,
         currMutation.copyFrom(mutation)
         mutantArr(i) = (currMutation, currentFitness)
       }
-      mutantArr.sortBy(_._2.asInstanceOf[Long])(Ordering[Long].reverse)
-    }
-
-    def calculateWeights(size: Int): Array[Double] = {
-      val weights = new Array[Double](size)
-      var weightsSum = 0.0
-      for (i <- 1 to size) {
-        weightsSum = weightsSum + math.pow(i, -2.5)
-        weights(i - 1) = weightsSum
+      if (mutantArr.length > 1) {
+        mutantArr.sortBy(_._2.asInstanceOf[Long])(Ordering[Long].reverse).slice(0, mutantArr.length / 2)
+      } else {
+        mutantArr
       }
-      weights
     }
 
     def pickMutant(mutantArr: Array[(OrderedSet[C], F)], weightArr: Array[Double]): OrderedSet[C] = {
-      val len = weightArr.length
+      val len = mutantArr.length
 
       val r = rng.nextDouble(weightArr(len - 1))
 
@@ -155,11 +161,11 @@ class OnePlusLambdaLambdaGAHT(lambdaTuning: Long => LambdaTuning,
         if (bePracticeAware) {
           crossoverBest.copyFrom(mutantArr(0)._1)
           aux.initialize(mutantArr(0)._2)
-          val weightArr = calculateWeights(mutationPopSize)
+          //val weightArr = calculateWeights(mutationPopSize)
           runPracticeAwareCrossoverHT(
             crossoverPopSize, f,
             crossStrength,
-            mutantDistance, mutantArr, weightArr, aux)
+            mutantDistance, mutantArr, weights, aux)
         } else {
           aux.initialize(runPracticeUnawareCrossover(crossoverPopSize, f, mutantArr(0)._2, crossStrength, mutantDistance))
           aux.incrementCalls(crossoverPopSize)

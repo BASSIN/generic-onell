@@ -97,9 +97,12 @@ object RunningTimes extends Main.Module {
 
   private def bitsLinearIntHT(context: Context): Unit = {
     val algorithms = Seq(
-      "(1+(λ,λ)) GAHT, λ=8" -> new OnePlusLambdaLambdaGAHT(fixedLambda(8), constantTuning = defaultTuning),
-      "(1+(λ,λ)) GA, λ=8" -> new OnePlusLambdaLambdaGA(fixedLambda(8), constantTuning = defaultTuning),
+      //"(1+(λ,λ)) GAHT, λ=8" -> new OnePlusLambdaLambdaGAHT(fixedLambda(8), constantTuning = defaultTuning),
+      //"(1+(λ,λ)) GA, λ=8" -> new OnePlusLambdaLambdaGA(fixedLambda(8), constantTuning = defaultTuning),
+      "(1+(λ,λ)) GAHT, λ<=n" -> new OnePlusLambdaLambdaGAHT(defaultOneFifthLambda),
       "(1+(λ,λ)) GA, λ<=n" -> new OnePlusLambdaLambdaGA(defaultOneFifthLambda),
+      //"(1+(λ,λ)) GAHT, λ<=2ln n" -> new OnePlusLambdaLambdaGAHT(logCappedOneFifthLambda),
+      //"(1+(λ,λ)) GA, λ<=2ln n" -> new OnePlusLambdaLambdaGA(logCappedOneFifthLambda),
       //"RLS" -> RLS,
       //"(1+1) EA" -> OnePlusOneEA.PracticeAware,
       //"(1+(λ,λ)) GA, λ~pow(2.5)" -> new OnePlusLambdaLambdaGA(powerLawLambda(2.5)),
